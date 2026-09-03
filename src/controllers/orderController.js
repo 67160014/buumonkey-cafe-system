@@ -1,4 +1,5 @@
 const orderModel = require("../models/orderModel");
+const { Order } = require("../models/Order");
 
 const VALID_PAYMENT_METHODS = ["cash", "credit", "qr"];
 
@@ -48,10 +49,13 @@ exports.createOrder = async (req, res) => {
         .json({ error: "paymentMethod ไม่ถูกต้องหรือไม่ได้ระบุ" });
     }
 
-    const totalAmount = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
+    const order = new Order(paymentMethod);
+    items.forEach((item) => order.addItem(item, item.quantity));
+    if (!order.submit()) {
+      return res.status(400).json({ error: "ต้องมีรายการสินค้าอย่างน้อย 1 รายการ" });
+    }
+
+    const totalAmount = order.calculateTotal();
 
     const orderId = await orderModel.create(paymentMethod, totalAmount);
 
