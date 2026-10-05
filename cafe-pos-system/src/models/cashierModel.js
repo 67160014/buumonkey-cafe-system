@@ -2,7 +2,7 @@ const pool = require("../config/db");
 
 async function findById(cashierId) {
   const [rows] = await pool.query(
-    `SELECT cashier_id, name
+    `SELECT cashier_id, branch_id, name
      FROM cashier
      WHERE cashier_id = ?`,
     [cashierId],

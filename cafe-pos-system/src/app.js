@@ -5,7 +5,9 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const orderRoutes = require("./routes/orderRoutes");
+const menuRoutes = require("./routes/menuRoutes");
 app.use("/api/orders", orderRoutes);
+app.use("/api/menu", menuRoutes);
 
 const PORT = process.env.PORT || 3000;
 
