@@ -72,7 +72,12 @@ exports.updateFields = async (menuId, branchId, { name, price, stockQuantity }) 
     [name, price, stockQuantity, menuId, branchId],
   );
 
-  return result.affectedRows > 0;
+  if (result.affectedRows > 0) return true;
+  const [rows] = await pool.query(
+    "SELECT 1 FROM menu_item WHERE menu_id = ? AND branch_id = ?",
+    [menuId, branchId],
+  );
+  return rows.length > 0;
 };
 
 exports.remove = async (menuId, branchId) => {

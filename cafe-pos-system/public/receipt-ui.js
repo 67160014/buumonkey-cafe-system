@@ -4,6 +4,7 @@
   const message = document.querySelector("#receipt-message");
   const recentOrders = document.querySelector("#recent-orders");
   const recentOrdersMessage = document.querySelector("#recent-orders-message");
+  const branchFilter = document.querySelector("#receipt-branch-filter");
   let branchNamesPromise;
   const money = (value) => `฿${Number(value || 0).toFixed(2)}`;
   const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
@@ -19,6 +20,14 @@
         });
     }
     return branchNamesPromise;
+  }
+
+  async function loadBranches() {
+    const branchNames = await loadBranchNames();
+    branchFilter.replaceChildren(new Option("ทุกสาขา", ""));
+    for (const [branchId, branchName] of branchNames) {
+      branchFilter.add(new Option(branchName, branchId));
+    }
   }
 
   async function loadReceipt(orderId) {
@@ -62,9 +71,12 @@
       const orders = await response.json();
       if (!response.ok) throw new Error(orders.error || "ไม่สามารถโหลดรายการออเดอร์ได้");
       const branchNames = await loadBranchNames();
-      const latestOrders = orders.slice(0, 10);
+      const filteredOrders = branchFilter.value
+        ? orders.filter((order) => order.branch_id === branchFilter.value)
+        : orders;
+      const latestOrders = filteredOrders.slice(0, 10);
       if (latestOrders.length === 0) {
-        recentOrders.innerHTML = '<p class="text-sm text-stone-500">ยังไม่มีออเดอร์</p>';
+        recentOrders.innerHTML = `<p class="text-sm text-stone-500">${branchFilter.value ? "ไม่พบออเดอร์ในสาขานี้" : "ยังไม่มีออเดอร์"}</p>`;
         return;
       }
       recentOrders.innerHTML = latestOrders.map((order) => `
@@ -89,11 +101,18 @@
     const button = event.target.closest("[data-order-id]");
     if (button) await loadReceipt(button.dataset.orderId);
   });
+  branchFilter.addEventListener("change", loadRecentOrders);
   document.querySelector("#print-receipt").addEventListener("click", (event) => {
     event.preventDefault();
     window.print();
   });
-  await loadRecentOrders();
+  try {
+    await loadBranches();
+    await loadRecentOrders();
+  } catch (error) {
+    recentOrdersMessage.textContent = error.message;
+    recentOrdersMessage.classList.remove("hidden");
+  }
 })();
 
 ;(async () => {

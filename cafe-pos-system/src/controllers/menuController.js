@@ -65,6 +65,12 @@ exports.createMenuItem = async (req, res) => {
     return res.status(201).json({ menuId: menuItem });
   } catch (error) {
     console.error("createMenuItem error:", error);
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ error: `รหัสเมนู ${menuId.trim()} มีอยู่แล้ว` });
+    }
+    if (error.code === "ER_NO_REFERENCED_ROW_2") {
+      return res.status(400).json({ error: `ไม่พบสาขา ${branchId.trim()}` });
+    }
     return res.status(500).json({ error: "เกิดข้อผิดพลาดในการสร้างเมนู" });
   }
 };
@@ -95,12 +101,12 @@ exports.updateMenuItem = async (req, res) => {
   }
 
   try {
-    const affectedRows = await menuItemModel.updateFields(
+    const updated = await menuItemModel.updateFields(
       req.params.menuId,
       branchId.trim(),
       { name: name?.trim(), price, stockQuantity },
     );
-    if (affectedRows === 0) {
+    if (!updated) {
       return res.status(404).json({
         error: `ไม่พบเมนู id ${req.params.menuId} ในสาขานี้`,
       });
@@ -119,11 +125,11 @@ exports.deleteMenuItem = async (req, res) => {
   }
 
   try {
-    const affectedRows = await menuItemModel.remove(
+    const deleted = await menuItemModel.remove(
       req.params.menuId,
       branchId.trim(),
     );
-    if (affectedRows === 0) {
+    if (!deleted) {
       return res.status(404).json({
         error: `ไม่พบเมนู id ${req.params.menuId} ในสาขานี้`,
       });
