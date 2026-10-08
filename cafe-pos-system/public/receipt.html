@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buumonkey Cafe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <style>
+    body, input, select, button, textarea { font-family: Prompt, sans-serif !important; }
+    .receipt-paper {
+      width: min(100%, 430px);
+      box-shadow: 0 12px 30px rgba(42, 27, 20, .12);
+    }
+    .receipt-divider {
+      border-top: 1px dashed #d6cec6;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      main { padding: 0 !important; }
+      #receipt { display: block !important; }
+      .receipt-paper { width: 80mm; box-shadow: none !important; border: 0 !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#F8F5F0] text-stone-800 font-sans antialiased min-h-screen flex flex-col">
+  <header class="bg-[#2A1B14] text-amber-50 h-16 px-6 flex items-center justify-between shadow-md border-b border-[#3E291F] shrink-0 select-none">
+    <div class="flex items-center space-x-4">
+      <div class="w-10 h-10 rounded-xl bg-[#4A3226] border border-[#5F4032] flex items-center justify-center text-amber-300 shadow-inner">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>
+      </div>
+      <h1 class="text-lg font-bold tracking-wide text-white">Buumonkey Cafe</h1>
+    </div>
+  </header>
+  <div class="flex min-h-[calc(100vh-4rem)]">
+    <aside class="no-print w-64 bg-[#2A1B14] text-stone-300 flex flex-col justify-between shrink-0 border-r border-[#3E291F] select-none">
+      <nav class="space-y-1.5 p-4">
+        <a href="/" class="flex items-center space-x-3 rounded-xl px-3.5 py-3 font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition"><svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-sm">สั่งออเดอร์</span></a>
+        <a href="/menu.html" class="flex items-center space-x-3 rounded-xl px-3.5 py-3 font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition"><svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-sm">จัดการเมนู</span><span class="ml-auto text-xs bg-stone-800 text-stone-400 px-2 py-0.5 rounded-full font-normal" data-menu-total-count>0</span></a>
+        <a href="/report.html" class="flex items-center space-x-3 rounded-xl px-3.5 py-3 font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition"><svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-sm">รายงานยอดขาย</span></a>
+        <a href="/receipt.html" class="flex items-center space-x-3 rounded-xl bg-[#54382B] text-amber-200 border-l-4 border-amber-400 shadow-sm transition px-3.5 py-3"><svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-sm font-semibold">ประวัติใบเสร็จรับเงิน</span></a>
+      </nav>
+    </aside>
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+      <div><h2 class="text-2xl font-bold text-stone-900">ประวัติใบเสร็จรับเงิน</h2></div>
+      <form id="receipt-form" class="no-print flex max-w-xl gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <input id="order-id" required min="1" type="number" placeholder="เลขที่ออเดอร์" class="min-w-0 flex-1 rounded-lg border-stone-300 text-sm">
+        <button class="rounded-lg bg-[#2A1B14] px-5 py-2 text-sm font-medium text-white hover:bg-[#3D281E]">ค้นหา</button>
+      </form>
+      <section class="no-print rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <h3 class="font-semibold text-stone-900">ออเดอร์ล่าสุด</h3>
+        <p class="mt-1 text-xs text-stone-500">เลือกเลขออเดอร์เพื่อดูใบเสร็จ (แสดง 10 รายการล่าสุด)</p>
+        <p id="recent-orders-message" class="mt-3 hidden text-sm text-rose-600" role="status" aria-live="polite"></p>
+        <div id="recent-orders" class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"></div>
+      </section>
+      <p id="receipt-message" class="hidden text-sm text-rose-600"></p>
+      <section id="receipt" class="hidden">
+        <div class="receipt-paper mx-auto rounded-2xl bg-white px-6 py-7 text-[12px] text-stone-700">
+          <div class="text-center">
+            <div class="mx-auto mb-3 h-1 w-10 rounded-full bg-stone-200"></div>
+            <p class="text-[10px] tracking-[0.28em] text-stone-500">BUUMONKEY CAFE</p>
+            <h3 class="mt-1 text-lg font-bold tracking-tight text-stone-900">BUUMONKEY CAFE</h3>
+            <p class="text-xs text-stone-600">ใบเสร็จรับเงิน / Receipt</p>
+            <p class="mt-1 text-[9px] text-stone-400">TAX ID: 0105569023412 &nbsp;•&nbsp; POS-Terminal #01</p>
+          </div>
+          <dl class="mt-5 space-y-2 rounded-xl bg-stone-50 px-4 py-3">
+            <div class="flex justify-between gap-3"><dt>สาขา / Branch:</dt><dd id="receipt-branch" class="font-medium text-stone-900"></dd></div>
+            <div class="flex justify-between gap-3"><dt>วันที่ / Date:</dt><dd id="receipt-date" class="font-medium text-stone-900"></dd></div>
+            <div class="flex justify-between gap-3"><dt>เลขที่ / Receipt No:</dt><dd id="receipt-id" class="font-medium text-stone-900"></dd></div>
+            <div class="flex justify-between gap-3"><dt>แคชเชียร์ / Cashier:</dt><dd id="receipt-cashier" class="font-medium text-stone-900"></dd></div>
+          </dl>
+          <div class="receipt-divider mt-5 pt-3">
+            <div class="mb-2 flex justify-between text-[10px] font-medium uppercase text-stone-500"><span>รายการ (Item)</span><span>จำนวนเงิน (THB)</span></div>
+            <div id="receipt-items"></div>
+          </div>
+          <div class="receipt-divider mt-4 space-y-2 pt-3 text-right">
+            <div class="flex justify-between"><span>ยอดรวมสินค้า (Subtotal):</span><span id="receipt-subtotal">฿0.00</span></div>
+          </div>
+          <div class="mt-4 flex items-center justify-between rounded-xl bg-stone-100 px-4 py-4">
+            <div><p class="font-bold text-stone-900">ยอดรวมสุทธิ (TOTAL DUE)</p></div>
+            <strong id="receipt-total" class="text-2xl text-stone-900">฿0.00</strong>
+          </div>
+          <dl class="mt-4 space-y-2 rounded-xl bg-stone-50 px-4 py-3">
+            <div class="flex justify-between"><dt>วิธีชำระ / Method:</dt><dd id="receipt-payment" class="font-medium text-stone-900"></dd></div>
+            <div class="flex justify-between"><dt>รับเงิน / Received:</dt><dd>—</dd></div>
+            <div class="flex justify-between"><dt>เงินทอน / Change:</dt><dd>—</dd></div>
+          </dl>
+          <div class="mt-6 text-center">
+            <div class="mx-auto grid h-24 w-24 grid-cols-5 gap-1 rounded-lg border-4 border-white bg-stone-900 p-2" aria-label="QR Code placeholder">
+              <i class="bg-white"></i><i></i><i class="bg-white"></i><i></i><i class="bg-white"></i>
+              <i></i><i class="bg-white"></i><i class="bg-white"></i><i></i><i></i>
+              <i class="bg-white"></i><i></i><i></i><i class="bg-white"></i><i></i>
+              <i></i><i class="bg-white"></i><i></i><i class="bg-white"></i><i class="bg-white"></i>
+              <i class="bg-white"></i><i></i><i class="bg-white"></i><i></i><i></i>
+            </div>
+            <p class="mt-3 text-[10px] text-stone-500">ขอบคุณที่มาใช้บริการ แล้วพบกันใหม่</p>
+            <p class="mt-1 font-semibold text-stone-800">Buumonkey Cafe</p>
+            <p class="text-[10px] text-stone-400">Good Coffee, Better Moments</p>
+          </div>
+          <div class="mt-7 flex justify-between text-[9px] text-stone-400"><span>PRINT COPY</span><span>STATUS: PAID</span></div>
+          <button id="print-receipt" type="button" class="no-print mt-6 w-full rounded-lg bg-[#2A1B14] px-4 py-2.5 text-sm text-white hover:bg-[#3D281E]">พิมพ์ใบเสร็จ</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/receipt-ui.js?v=8"></script>
+</body>
+</html>

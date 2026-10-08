@@ -1,8 +1,6 @@
 const orderModel = require("../models/orderModel");
-const cashierModel = require("../models/cashierModel");
-const menuItemModel = require("../models/menuItemModel");
 
-const VALID_PAYMENT_METHODS = ["cash", "credit", "qr"];
+const VALID_PAYMENT_METHODS = ["cash", "qr"];
 
 exports.createOrder = async (req, res) => {
   const {
@@ -42,52 +40,24 @@ exports.createOrder = async (req, res) => {
   }
 
   try {
-    const quantityByMenuId = new Map();
-    for (const item of items) {
-      quantityByMenuId.set(
-        item.menuId.trim(),
-        (quantityByMenuId.get(item.menuId.trim()) || 0) + item.quantity,
-      );
-    }
-
-    const menuRows = await menuItemModel.findManyForStockCheck(
-      [...quantityByMenuId.keys()],
-      branchId.trim(),
-    );
-    const menuMap = new Map(menuRows.map((row) => [row.menu_id, row]));
-
-    for (const [menuId, totalQuantity] of quantityByMenuId) {
-      const menu = menuMap.get(menuId);
-      if (!menu) {
-        return res.status(400).json({ error: `ไม่พบเมนู id ${menuId} ในสาขานี้` });
-      }
-      if (menu.stock_quantity < totalQuantity) {
-        return res.status(400).json({
-          error: `สต็อกไม่เพียงพอสำหรับเมนู id ${menuId}`,
-        });
-      }
-    }
-
-    const orderId = await orderModel.create(
-      branchId.trim(),
-      cashierId.trim(),
+    const result = await orderModel.createWithItems({
+      branchId: branchId.trim(),
+      cashierId: cashierId.trim(),
       paymentMethod,
       orderDate,
-    );
+      items: items.map((item) => ({ ...item, menuId: item.menuId.trim() })),
+    });
 
-    for (const item of items) {
-      const menu = menuMap.get(item.menuId.trim());
-      await orderModel.addItem(orderId, item.menuId.trim(), item.quantity, menu.price);
-      await menuItemModel.deductStock(item.menuId.trim(), item.quantity, branchId.trim());
-    }
-
-    const lowStockMenuIds = [...quantityByMenuId].filter(([menuId, quantity]) => (
-      menuMap.get(menuId).stock_quantity - quantity < 10
-    )).map(([menuId]) => menuId);
-
-    return res.status(201).json({ orderId, lowStockMenuIds });
+    return res.status(201).json({
+      orderId: result.orderId,
+      totalAmount: result.totalAmount,
+      lowStockMenuIds: result.lowStockMenuIds,
+    });
   } catch (error) {
     console.error("createOrder error:", error);
+    if (error.statusCode === 400) {
+      return res.status(400).json({ error: error.message });
+    }
     return res.status(500).json({ error: "เกิดข้อผิดพลาดในการบันทึกออเดอร์" });
   }
 };
@@ -98,5 +68,23 @@ exports.getAllOrders = async (req, res) => {
   } catch (error) {
     console.error("getAllOrders error:", error);
     return res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงออเดอร์" });
+  }
+};
+
+exports.getReceipt = async (req, res) => {
+  const orderId = Number(req.params.orderId);
+  if (!Number.isInteger(orderId) || orderId <= 0) {
+    return res.status(400).json({ error: "orderId ต้องเป็นจำนวนเต็มบวก" });
+  }
+
+  try {
+    const receipt = await orderModel.findReceipt(orderId);
+    if (!receipt) {
+      return res.status(404).json({ error: "ไม่พบออเดอร์สำหรับออกใบเสร็จ" });
+    }
+    return res.json(receipt);
+  } catch (error) {
+    console.error("getReceipt error:", error);
+    return res.status(500).json({ error: "เกิดข้อผิดพลาดในการสร้างใบเสร็จ" });
   }
 };

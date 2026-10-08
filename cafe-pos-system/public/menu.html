@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>Buumonkey Cafe</title>
+<!-- Google Fonts: Prompt for authentic Thai POS typography -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS CDN with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Espresso Palette -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            espresso: {
+              900: '#1F140E',
+              850: '#261912',
+              800: '#2F1E16',
+              700: '#3D281E',
+              600: '#53382B',
+              500: '#754F3D',
+              200: '#D5C4B8',
+              100: '#EBE2DC',
+              50: '#F7F4F0',
+            },
+            warmbg: '#FAF7F2',
+            creamborder: '#E8DFC8',
+            coffeeAccent: '#A46338',
+            amberAlert: '#D97706',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scrollbars">
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F2ECE4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C4B5A5;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8F7664;
+    }
+  </style>
+<style>
+  #menu-main-content {
+    visibility: hidden;
+  }
+</style>
+</head>
+<body class="bg-[#F8F5F0] text-stone-800 font-sans antialiased min-h-screen flex flex-col">
+<!-- BEGIN: TopBar -->
+<header class="bg-[#2A1B14] text-amber-50 h-16 px-6 flex items-center justify-between shadow-md border-b border-[#3E291F] shrink-0 select-none">
+<!-- Brand & Subtitle -->
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-xl bg-[#4A3226] border border-[#5F4032] flex items-center justify-center text-amber-300 shadow-inner">
+<!-- Coffee Cup SVG Icon -->
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+<path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
+<line x1="6" x2="6" y1="2" y2="4"></line>
+<line x1="10" x2="10" y1="2" y2="4"></line>
+<line x1="14" x2="14" y1="2" y2="4"></line>
+</svg>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<h1 class="font-bold text-lg tracking-wide text-white">Buumonkey Cafe</h1>
+</div>
+</div>
+</div>
+<!-- Center/Right Branch and Shift Info -->
+<div class="flex items-center space-x-4">
+<!-- Branch Selector Pill -->
+<div class="flex items-center bg-[#3D281E] border border-[#54382A] rounded-lg px-3 py-1.5 text-xs text-stone-200">
+<svg class="w-4 h-4 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<label class="flex items-center gap-1.5">สาขา:
+<select id="menu-branch-select" aria-label="เลือกสาขา" class="max-w-40 rounded-md border border-[#654632] bg-[#2A1B14] py-1 pl-2 pr-7 text-xs font-medium text-white focus:border-amber-400 focus:ring-amber-400"></select>
+</label>
+</div>
+<!-- Staff & System Date -->
+<div class="flex items-center bg-[#362319] border border-[#4A3226] rounded-lg px-3 py-1.5 text-xs text-stone-300">
+<label class="flex items-center gap-1.5 whitespace-nowrap">แคชเชียร์:
+<select id="menu-cashier-select" aria-label="เลือกแคชเชียร์" class="max-w-40 rounded-md border border-[#654632] bg-[#2A1B14] py-1 pl-2 pr-7 text-xs font-medium text-white focus:border-amber-400 focus:ring-amber-400"></select>
+</label>
+</div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- BEGIN: MainContainer -->
+<div class="flex-1 flex overflow-hidden">
+<!-- BEGIN: LeftSidebarNav -->
+<aside class="w-64 bg-[#2A1B14] text-stone-300 flex flex-col justify-between shrink-0 border-r border-[#3E291F] select-none">
+<nav class="p-4 space-y-1.5">
+<a class="flex items-center space-x-3 px-3.5 py-3 rounded-xl font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition" href="#">
+<svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-sm">สั่งออเดอร์</span>
+</a>
+<!-- Active Page: จัดการเมนู -->
+<a class="flex items-center space-x-3 px-3.5 py-3 rounded-xl font-medium bg-[#54382B] text-amber-200 border-l-4 border-amber-400 shadow-sm transition" href="#">
+<svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-sm font-semibold">จัดการเมนู</span>
+<span class="ml-auto text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-normal" data-menu-total-count>0</span>
+</a>
+<a class="flex items-center space-x-3 px-3.5 py-3 rounded-xl font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition" href="#">
+<svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-sm">รายงานยอดขาย</span>
+</a>
+<a class="flex items-center space-x-3 px-3.5 py-3 rounded-xl font-medium text-stone-300 hover:text-white hover:bg-[#3D281E] transition" href="#">
+<svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-sm">ประวัติใบเสร็จรับเงิน</span>
+</a>
+</nav>
+</aside>
+<!-- END: LeftSidebarNav -->
+<!-- BEGIN: MainContentArea -->
+<main id="menu-main-content" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+<!-- Header Title Section -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4"><div>
+  <h2 class="text-2xl font-bold text-stone-900 tracking-tight">จัดการเมนู</h2>
+</div>
+</div>
+<!-- BEGIN: QuickStatsOverview -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" data-purpose="kpi-metrics-grid"><!-- KPI 1 -->
+<div class="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
+  <div class="text-xs text-stone-500 font-medium">เมนูทั้งหมด</div>
+  <div class="text-2xl font-bold text-stone-900 mt-1.5"><span data-menu-total-count>0</span> <span class="text-xs font-normal text-stone-500">รายการ</span></div>
+</div>
+</section>
+<!-- END: QuickStatsOverview -->
+<!-- BEGIN: MenuManagementListTable -->
+<section class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden" data-purpose="menu-catalog-table"><div class="px-5 py-3.5 border-b border-stone-200 flex items-center justify-between text-xs text-stone-500">
+  <div class="flex items-center space-x-2">
+    <span class="font-semibold text-stone-800 text-sm">รายการสินค้า</span>
+    <span data-menu-list-count>(0 จาก 0 รายการ)</span>
+  </div>
+  
+</div>
+<div class="overflow-x-auto">
+  <table class="w-full text-left border-collapse text-xs">
+    <thead>
+      <tr class="bg-stone-50 text-stone-500 font-medium border-b border-stone-200">
+        <th class="py-3 px-5">ชื่อเมนู</th>
+        <th class="py-3 px-4 text-right">ราคา</th>
+        <th class="py-3 px-4 text-center">สต็อกคงเหลือ</th>
+        <th class="py-3 px-4 text-center">สถานะ</th>
+        <th class="py-3 px-5 text-right">จัดการ</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-stone-100 text-stone-700"></tbody>
+  </table>
+</div>
+<!-- Simple Clean Pagination -->
+<div class="px-5 py-3 bg-stone-50/60 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500">
+  <div data-menu-pagination>แสดง 0 - 0 จาก 0 รายการ</div>
+  <div class="flex items-center space-x-1">
+    <button class="px-2 py-1 rounded border border-stone-200 bg-white text-stone-400 disabled:opacity-50" disabled="">ก่อนหน้า</button>
+    <button class="px-2.5 py-1 rounded bg-[#2A1B14] text-white font-medium">1</button>
+    <button class="px-2.5 py-1 rounded border border-stone-200 bg-white text-stone-600 hover:bg-stone-100">2</button>
+    <button class="px-2.5 py-1 rounded border border-stone-200 bg-white text-stone-600 hover:bg-stone-100">3</button>
+    <button class="px-2 py-1 rounded border border-stone-200 bg-white text-stone-600 hover:bg-stone-100">ถัดไป</button>
+  </div>
+</div></section>
+<!-- END: MenuManagementListTable -->
+</main>
+<!-- END: MainContentArea -->
+</div>
+<!-- END: MainContainer -->
+</body></html>
+<script src='/menu-ui.js?v=8'></script>
