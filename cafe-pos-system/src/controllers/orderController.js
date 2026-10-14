@@ -1,6 +1,11 @@
 const orderModel = require("../models/orderModel");
+const { cupSizes, sweetnessLevels, toppings } = require("../config/orderCustomizations");
 
 const VALID_PAYMENT_METHODS = ["cash", "qr"];
+
+exports.getCustomizationOptions = (req, res) => {
+  return res.json({ cupSizes, sweetnessLevels, toppings });
+};
 
 exports.createOrder = async (req, res) => {
   const {
@@ -32,10 +37,17 @@ exports.createOrder = async (req, res) => {
     typeof item.menuId !== "string" ||
     item.menuId.trim() === "" ||
     !Number.isInteger(item.quantity) ||
-    item.quantity <= 0
+    item.quantity <= 0 ||
+    (item.cupSize !== undefined && !cupSizes.some((size) => size.id === item.cupSize)) ||
+    (item.sweetnessLevel !== undefined && !sweetnessLevels.some((level) => level.value === item.sweetnessLevel)) ||
+    (item.toppingIds !== undefined && (
+      !Array.isArray(item.toppingIds) ||
+      item.toppingIds.some((id) => typeof id !== "string" || !toppings.some((topping) => topping.id === id)) ||
+      new Set(item.toppingIds).size !== item.toppingIds.length
+    ))
   ))) {
     return res.status(400).json({
-      error: "ทุกสินค้าต้องมี menuId และ quantity เป็นจำนวนเต็มมากกว่า 0",
+      error: "รายการสินค้าหรือข้อมูลปรับแต่งไม่ถูกต้อง",
     });
   }
 
@@ -45,7 +57,13 @@ exports.createOrder = async (req, res) => {
       cashierId: cashierId.trim(),
       paymentMethod,
       orderDate,
-      items: items.map((item) => ({ ...item, menuId: item.menuId.trim() })),
+      items: items.map((item) => ({
+        ...item,
+        menuId: item.menuId.trim(),
+        cupSize: item.cupSize ?? "S",
+        sweetnessLevel: item.sweetnessLevel ?? 0,
+        toppingIds: item.toppingIds ?? [],
+      })),
     });
 
     return res.status(201).json({

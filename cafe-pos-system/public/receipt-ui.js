@@ -50,12 +50,32 @@
       document.querySelector("#receipt-payment").textContent = data.paymentMethod === "qr" ? "QR Code" : "เงินสด";
       document.querySelector("#receipt-total").textContent = money(data.totalAmount);
       document.querySelector("#receipt-subtotal").textContent = money(data.totalAmount);
-      document.querySelector("#receipt-items").innerHTML = data.items.map((item) => `
-        <div class="mb-3 flex justify-between gap-3">
-          <div><p class="font-medium text-stone-900">${escapeHtml(item.menuName)} <span class="text-stone-400">x${item.quantity}</span></p>
-          <p class="text-[10px] text-stone-500">${money(item.unitPrice)} / หน่วย</p></div>
-          <span class="shrink-0 font-medium text-stone-900">${money(item.subtotal)}</span>
-        </div>`).join("");
+      document.querySelector("#receipt-items").innerHTML = data.items.map((item) => {
+        const customization = item.customizations;
+        let customizationMarkup;
+        if (customization) {
+          const cupSizeLabel = customization.cupSize?.label
+            ? `${customization.cupSize.label}${Number(customization.cupSize.extraPrice) > 0 ? ` (+${money(customization.cupSize.extraPrice)} ฿)` : ""}`
+            : "";
+          const toppingLabels = (customization.toppings || []).map((topping) => (
+            `${topping.name}${Number(topping.price) > 0 ? ` (+${money(topping.price)} ฿)` : ""}`
+          ));
+          customizationMarkup = `<p class="text-[10px] text-stone-600">${escapeHtml([
+            cupSizeLabel,
+            `${customization.sweetness?.label || ""} ${customization.sweetness?.percent || ""}`.trim(),
+            ...toppingLabels,
+          ].filter(Boolean).join(" · "))}</p>
+          <p class="text-[10px] text-stone-500"> ${money(customization.basePrice)} + ปรับแต่ง ${money(Number(item.unitPrice) - Number(customization.basePrice))} / แก้ว</p>`;
+        } else {
+          customizationMarkup = `<p class="text-[10px] text-stone-500">${money(item.unitPrice)} / หน่วย</p>`;
+        }
+        return `
+          <div class="mb-3 flex justify-between gap-3">
+            <div><p class="font-medium text-stone-900">${escapeHtml(item.menuName)} <span class="text-stone-400">x${item.quantity}</span></p>
+            ${customizationMarkup}</div>
+            <span class="shrink-0 font-medium text-stone-900">${money(item.subtotal)}</span>
+          </div>`;
+      }).join("");
       receipt.classList.remove("hidden");
       receipt.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {

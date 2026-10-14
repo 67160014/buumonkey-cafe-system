@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { cupSizes, sweetnessLevels, toppings } = require("../config/orderCustomizations");
 
 async function create(branchId, cashierId, paymentMethod, orderDate) {
   const [result] = await pool.query(
@@ -62,10 +63,30 @@ async function createWithItems({
       }
     }
 
-    const totalAmount = items.reduce(
-      (total, item) => total + Number(menuMap.get(item.menuId).price) * item.quantity,
+    const pricedItems = items.map((item) => {
+      const menu = menuMap.get(item.menuId);
+      const cupSize = cupSizes.find((option) => option.id === item.cupSize);
+      const sweetness = sweetnessLevels.find((option) => option.value === item.sweetnessLevel);
+      const selectedToppings = item.toppingIds.map((id) => toppings.find((topping) => topping.id === id));
+      const basePriceCents = Math.round(Number(menu.price) * 100);
+      const extrasCents = Math.round(cupSize.extraPrice * 100)
+        + selectedToppings.reduce((sum, topping) => sum + Math.round(topping.price * 100), 0);
+      const customizations = {
+        basePrice: basePriceCents / 100,
+        cupSize: { id: cupSize.id, label: cupSize.label, extraPrice: cupSize.extraPrice },
+        sweetness: { value: sweetness.value, label: sweetness.label, percent: sweetness.percent },
+        toppings: selectedToppings.map(({ id, name, price }) => ({ id, name, price })),
+      };
+      return {
+        ...item,
+        unitPrice: (basePriceCents + extrasCents) / 100,
+        customizations,
+      };
+    });
+    const totalAmount = pricedItems.reduce(
+      (totalCents, item) => totalCents + Math.round(item.unitPrice * 100) * item.quantity,
       0,
-    );
+    ) / 100;
 
     const [orderResult] = await connection.query(
       `INSERT INTO orders
@@ -75,12 +96,18 @@ async function createWithItems({
     );
     const orderId = orderResult.insertId;
 
-    for (const item of items) {
+    for (const item of pricedItems) {
       await connection.query(
         `INSERT INTO order_item
-         (order_id, menu_id, quantity, unit_price)
-         VALUES (?, ?, ?, ?)`,
-        [orderId, item.menuId, item.quantity, menuMap.get(item.menuId).price],
+         (order_id, menu_id, quantity, unit_price, customizations)
+         VALUES (?, ?, ?, ?, ?)`,
+        [
+          orderId,
+          item.menuId,
+          item.quantity,
+          item.unitPrice,
+          JSON.stringify(item.customizations),
+        ],
       );
 
       const [stockResult] = await connection.query(
@@ -129,7 +156,7 @@ async function findReceipt(orderId) {
     `SELECT o.order_id, o.branch_id, o.cashier_id, o.order_date,
             o.payment_method, b.name AS branch_name, c.name AS cashier_name,
             oi.order_item_id, oi.menu_id,
-            mi.name AS menu_name, oi.quantity, oi.unit_price,
+            mi.name AS menu_name, oi.quantity, oi.unit_price, oi.customizations,
             (oi.quantity * oi.unit_price) AS subtotal
      FROM orders o
      JOIN order_item oi ON oi.order_id = o.order_id
@@ -160,6 +187,9 @@ async function findReceipt(orderId) {
       quantity: row.quantity,
       unitPrice: row.unit_price,
       subtotal: row.subtotal,
+      customizations: typeof row.customizations === "string"
+        ? JSON.parse(row.customizations)
+        : row.customizations,
     })),
   };
   receipt.totalAmount = receipt.items.reduce(

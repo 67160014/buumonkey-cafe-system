@@ -3,6 +3,7 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 
 router.post("/", orderController.createOrder);
+router.get("/customizations", orderController.getCustomizationOptions);
 router.get("/", orderController.getAllOrders);
 router.get("/:orderId/receipt", orderController.getReceipt);
 
