@@ -43,9 +43,7 @@
 
 ```text
 cafe-pos-system/
-├── migrations/                                  # จัดการ Database Migration
-│   └── 20261014_add_order_customizations.sql    # ไฟล์ Migration SQL เพิ่มตัวเลือกออเดอร์
-├── node_modules/                                # แพ็กเกจ Dependencies ที่ติดตั้งผ่าน npm
+├── node_modules/                               # แพ็กเกจ Dependencies ที่ติดตั้งผ่าน npm
 ├── public/                                      # โฟลเดอร์จัดการ Frontend / UI ของระบบ
 │   ├── app.js                                   # สคริปต์หลักของแอปพลิเคชันฝั่ง UI
 │   ├── index.html                               # หน้าแรก/หน้าหลักของระบบ POS หน้าร้าน
