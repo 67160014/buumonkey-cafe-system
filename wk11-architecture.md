@@ -131,10 +131,14 @@ cafe-pos-system/
 ## 3. แผนภาพสถาปัตยกรรม (Architecture & Component Diagrams)
 
 ### 3.1 Architecture Diagram
-![Architecture Diagram](./Architecture Diagram.png)
+<p align="center">
+  <img src="./Architecture Diagram.png" alt="Architecture Diagram" width="200" />
+</p>
 
 ### 3.2 Component Diagram
-![Architecture Diagram](./Component Diagram.png)
+<p align="center">
+  <img src="./Component Diagram.png" alt="Component Diagram" width="200" />
+</p>
 
 ---
 
