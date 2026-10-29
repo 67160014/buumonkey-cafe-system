@@ -31,6 +31,19 @@ async function createWithItems({
   try {
     await connection.beginTransaction();
 
+    const [cashierRows] = await connection.query(
+      `SELECT cashier_id
+       FROM cashier
+       WHERE cashier_id = ? AND branch_id = ?
+       FOR UPDATE`,
+      [cashierId, branchId],
+    );
+    if (cashierRows.length === 0) {
+      const error = new Error("ไม่พบพนักงานของสาขานี้");
+      error.statusCode = 400;
+      throw error;
+    }
+
     const menuIds = [...new Set(items.map((item) => item.menuId))];
     const [menuRows] = await connection.query(
       `SELECT menu_id, name, price, stock_quantity
